@@ -1,0 +1,31 @@
+{
+  "name": "material-ui-gps-player",
+  "version": "1.0.0",
+  "description": "GPS coordinates player designed with material ui",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whizsid/material-ui-gps-player.git"
+  },
+  "keywords": [
+    "gps",
+    "material-ui",
+    "react",
+    "player",
+    "youtube",
+    "speed",
+    "pause",
+    "stop",
+    "play",
+    "seekbar"
+  ],
+  "author": "whizsid",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/whizsid/material-ui-gps-player/issues"
+  },
+  "homepage": "https://github.com/whizsid/material-ui-gps-player#readme"
+}
