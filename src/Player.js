@@ -3,11 +3,15 @@ import React,{
 } from 'react';
 import Paper from '@material-ui/core/Paper';
 import withStyles from '@material-ui/core/styles/withStyles';
-import PropTypes from 'proptypes';
-import PlayIcon from '@material-ui/icons/Play';
-import PauseIcon from '@material-ui/icons/Pause';
-import StopIcon from '@material-ui/icons/Stop';
-import Typography from '@material-ui/core/Typography';
+import {
+	Map,
+	GoogleApiWrapper
+} from 'google-maps-react';
+//import PropTypes from 'proptypes';
+//import PlayIcon from '@material-ui/icons/Play';
+//import PauseIcon from '@material-ui/icons/Pause';
+//import StopIcon from '@material-ui/icons/Stop';
+//import Typography from '@material-ui/core/Typography';
 
 const styles = theme=>({
 	paper:{
@@ -17,7 +21,7 @@ const styles = theme=>({
 
 class PlayerComponent extends Component {
 	
-	construct(props){
+	constructor(props){
 		super(props);
 		
 		this.handlePause = this.handlePause.bind(this);
@@ -53,21 +57,32 @@ class PlayerComponent extends Component {
 	}
 
 	render(){
-		const {classes} = this.props;
+		const {classes,google,zoom} = this.props;
 		
 		return (
 			<Paper>
+				<div className={classes.seekBar}>
+				  hhhhh
+				</div>
+				<Map
+					google={google}
+					zoom={zoom}
+				>
 				
+				</Map>
 			</Paper>
 		);
 	}
 }
 
 
-
-
-const Player = withStyles(styles) (PlayerComponent);
-
+const Player =  GoogleApiWrapper(
+  (props) => ({
+    apiKey: props.apiKey,
+    language: props.language,
+  }
+))(withStyles(styles) (PlayerComponent));
+/*
 Player.propTypes = {
 	coordinates: 	PropTypes.arrayOf(PropTypes.shape({
 						lat: PropTypes.number.isRequired,
@@ -88,5 +103,7 @@ Player.propTypes = {
 					}),
 }
 
+*/
 
 export default Player;
+    
