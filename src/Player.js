@@ -1,20 +1,30 @@
 import React, { Component } from "react";
 import Paper from "@material-ui/core/Paper";
+import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
 import withStyles from "@material-ui/core/styles/withStyles";
+import PlayIcon from '@material-ui/icons/PlayArrow';
+import PauseIcon from '@material-ui/icons/Pause';
 import { Map, GoogleApiWrapper } from "google-maps-react";
 //import PropTypes from 'proptypes';
-//import PlayIcon from '@material-ui/icons/Play';
-//import PauseIcon from '@material-ui/icons/Pause';
 //import StopIcon from '@material-ui/icons/Stop';
 //import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
-  paper: {}
+  paper: {},
+  seekBar: {},
+  seeked:{}
 });
 
 class PlayerComponent extends Component {
   constructor(props) {
     super(props);
+    
+    this.state = {
+    	playing:false,
+    	timeout:0,
+    	_currentTime:0
+    };
 
     this.handlePause = this.handlePause.bind(this);
     this.handlePlay = this.handlePlay.bind(this);
@@ -23,10 +33,58 @@ class PlayerComponent extends Component {
     this.handleForward = this.handleForward.bind(this);
     this.handleBackward = this.handleBackward.bind(this);
   }
+  
+  componentDidUpdate(){
+  	const {currentTime} = this.props;
+  	const {_currentTime} = this.state;
+  	
+  	let newState = {};
+  	
+  	if(currentTime && currentTime != _currentTime){
+
+  			newState=[_currentTime] = currentTime;
+  		
+  	}
+  }
 
   handlePause() {}
 
-  handlePlay() {}
+  handlePlay() {
+  	const {currentTime, speed,onChangeTime} = this.props;
+  	
+  	const isBackward = speed<0?true:false;
+  	
+  	let _currentTime = currentTime;
+  	
+  	if(currentTime<2&&isBackward){
+  		return;
+  	}
+  	
+  	const timeout = window.setTimeout(()=>{
+  		
+  		_currentTime+=isBackward?-1:1;
+  		
+  		if(onChangeTime){
+  			onChangeTime(_currentTime);
+  			
+ 			 if(!currentTime){
+  				this.setState({
+  					_currentTime
+  				})
+  			}
+  		} else {
+  			this.setState({
+  				_currentTime
+  			})
+  		}
+  		
+  		
+  	}, 1000/(isBackward?((-1)*speed):speed));
+  	
+  	this.setState({
+  		timeout
+  	})
+  }
 
   handleStop() {}
 
@@ -35,14 +93,38 @@ class PlayerComponent extends Component {
   handleForward() {}
 
   handleBackward() {}
+  
+  renderSatusIcon() {
+  	const {
+  		playing
+  	} = this.state;
+  	
+  	
+  	if(!playing){
+  		return (
+  			<PauseIcon />
+  		)
+  	}
+  	
+  	return (
+  		<PlayIcon onClick={this.handlePlay} />
+  	)
+  }
 
   render() {
     const { classes, google, zoom } = this.props;
 
     return (
       <Paper>
-        <div className={classes.seekBar}>hhhhh</div>
         <Map google={google} zoom={zoom} />
+        <Toolbar variant="dense" className={classes.panel}>
+        	<IconButton>
+        		{this.renderSatusIcon()}
+        	</IconButton>
+        	<div className={classes.seekBar}>
+        		<div className={classes.seeked}/>
+        	</div>
+        </Toolbar>
       </Paper>
     );
   }
@@ -74,5 +156,12 @@ Player.propTypes = {
 }
 
 */
+	
+	
+Player.defaultProps ={
+	speed:1000
+}
 
 export default Player;
+    
+    
