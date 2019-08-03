@@ -22,7 +22,7 @@ class PlayerComponent extends Component {
     
     this.state = {
     	playing:false,
-    	timeout:0,
+    	timeout:null,
     	_currentTime:0
     };
 
@@ -42,48 +42,79 @@ class PlayerComponent extends Component {
   	
   	if(currentTime && currentTime != _currentTime){
 
-  			newState=[_currentTime] = currentTime;
-  		
+  			newState['_currentTime'] = currentTime;
+ 
   	}
   }
 
-  handlePause() {}
-
-  handlePlay() {
-  	const {currentTime, speed,onChangeTime} = this.props;
+  _getCurrentCoordinates(){
+  	const {coordinates} = this.props;
+  	const {_currentTime} = this.state;
+  	
+  	return coordinates.map((coordinate)=>{
+  		return coordinate.time < _currentTime;
+  	})
+  }
+  
+  _continue(){
+  	const {speed,onChangeTime,currentTime} = this.props;
+  	const {_currentTime,timeout,playing} = this.state;
   	
   	const isBackward = speed<0?true:false;
   	
-  	let _currentTime = currentTime;
-  	
-  	if(currentTime<2&&isBackward){
+  	if(!playing){
   		return;
   	}
   	
-  	const timeout = window.setTimeout(()=>{
+  	let time = currentTime?currentTime:_currentTime;
+	  console.log(time);
+  	if(time<2&&isBackward){
+  		return;
+  	}
+  	
+  	const _timeout = window.setTimeout(()=>{
   		
-  		_currentTime+=isBackward?-1:1;
-  		
+  		time+=(isBackward?-1:1)*5*speed/1000;
+
   		if(onChangeTime){
-  			onChangeTime(_currentTime);
-  			
+  			onChangeTime(time);
+ 
  			 if(!currentTime){
-  				this.setState({
-  					_currentTime
-  				})
+ 				this.setState({
+  					_currentTime:time
+ 				},()=>this._continue());
+  			} else {
+  				this._continue();
   			}
+  			
   		} else {
   			this.setState({
-  				_currentTime
-  			})
+  				_currentTime:time
+  			},()=>this._continue());
   		}
-  		
-  		
-  	}, 1000/(isBackward?((-1)*speed):speed));
+
+	  },5);
+	  
+  	this.setState({
+  		timeout:_timeout
+  	})
+  }
+
+  handlePause() {
   	
   	this.setState({
-  		timeout
+  		playing:false
+  	});
+  }
+
+  handlePlay() {
+  	
+  	this.setState({
+  		playing:true
+  	},()=>{
+  		this._continue();
   	})
+  	
   }
 
   handleStop() {}
@@ -100,14 +131,18 @@ class PlayerComponent extends Component {
   	} = this.state;
   	
   	
-  	if(!playing){
+  	if(playing){
   		return (
-  			<PauseIcon />
+  			<IconButton onClick={this.handlePause} >
+  				<PauseIcon />
+  			</IconButton >
   		)
   	}
   	
   	return (
-  		<PlayIcon onClick={this.handlePlay} />
+  		<IconButton onClick={this.handlePlay} >
+  			<PlayIcon />
+  		</IconButton >
   	)
   }
 
@@ -116,13 +151,12 @@ class PlayerComponent extends Component {
 
     return (
       <Paper>
-        <Map google={google} zoom={zoom} />
+        {/*<Map google={google} zoom={zoom} />*/}
         <Toolbar variant="dense" className={classes.panel}>
-        	<IconButton>
-        		{this.renderSatusIcon()}
-        	</IconButton>
+        	{this.renderSatusIcon()}
         	<div className={classes.seekBar}>
         		<div className={classes.seeked}/>
+        		hjjhh
         	</div>
         </Toolbar>
       </Paper>
@@ -130,10 +164,10 @@ class PlayerComponent extends Component {
   }
 }
 
-const Player = GoogleApiWrapper(props => ({
+const Player =/* GoogleApiWrapper(props => ({
   apiKey: props.apiKey,
   language: props.language
-}))(withStyles(styles)(PlayerComponent));
+}))(*/withStyles(styles)(PlayerComponent);
 /*
 Player.propTypes = {
 	coordinates: 	PropTypes.arrayOf(PropTypes.shape({
@@ -163,5 +197,6 @@ Player.defaultProps ={
 }
 
 export default Player;
+    
     
     
