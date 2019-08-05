@@ -43,6 +43,8 @@
     "@babel/polyfill": "^7.4.4",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
+    "@types/googlemaps": "^3.37.1",
+    "@types/moment": "^2.13.0",
     "babel-loader": "^8.0.6",
     "html-webpack-plugin": "^3.2.0",
     "prop-types": "^15.6.2",
@@ -55,6 +57,7 @@
     "@material-ui/core": "^4.3.0",
     "@material-ui/icons": "^4.2.1",
     "google-maps-react": "^2.0.2",
+    "moment": "^2.24.0",
     "react": "^16.8.6"
   }
 }
