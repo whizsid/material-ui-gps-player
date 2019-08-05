@@ -5,6 +5,8 @@ import IconButton from "@material-ui/core/IconButton";
 import withStyles from "@material-ui/core/styles/withStyles";
 import PlayIcon from '@material-ui/icons/PlayArrow';
 import PauseIcon from '@material-ui/icons/Pause';
+import FastForwardIcon from '@material-ui/icons/FastForward';
+import StopIcon from '@material-ui/icons/Stop';
 import { Map, GoogleApiWrapper } from "google-maps-react";
 //import PropTypes from 'proptypes';
 //import StopIcon from '@material-ui/icons/Stop';
@@ -23,7 +25,8 @@ class PlayerComponent extends Component {
     this.state = {
     	playing:false,
     	timeout:null,
-    	_currentTime:0
+    	_currentTime:0,
+    	_speed:1000
     };
 
     this.handlePause = this.handlePause.bind(this);
@@ -31,22 +34,8 @@ class PlayerComponent extends Component {
     this.handleStop = this.handleStop.bind(this);
     this.handleSeek = this.handleSeek.bind(this);
     this.handleForward = this.handleForward.bind(this);
-    this.handleBackward = this.handleBackward.bind(this);
   }
   
-  componentDidUpdate(){
-  	const {currentTime} = this.props;
-  	const {_currentTime} = this.state;
-  	
-  	let newState = {};
-  	
-  	if(currentTime && currentTime != _currentTime){
-
-  			newState['_currentTime'] = currentTime;
- 
-  	}
-  }
-
   _getCurrentCoordinates(){
   	const {coordinates} = this.props;
   	const {_currentTime} = this.state;
@@ -56,25 +45,38 @@ class PlayerComponent extends Component {
   	})
   }
   
+  _getLastCoordinate(){
+  	const {coordinates} = this.props;
+  	
+  	return coordinates[coordinates.length-1];
+  }
+  
   _continue(){
   	const {speed,onChangeTime,currentTime} = this.props;
-  	const {_currentTime,timeout,playing} = this.state;
-  	
-  	const isBackward = speed<0?true:false;
+  	const {_currentTime,_speed,timeout,playing} = this.state;
+  	const currentSpeed= speed?speed:_speed;
   	
   	if(!playing){
+  		// If paused or stopped not continue
   		return;
   	}
   	
+  	// If passed current time via props
   	let time = currentTime?currentTime:_currentTime;
-	  console.log(time);
-  	if(time<2&&isBackward){
-  		return;
+ 
+  	const lastCoordinate = this._getLastCoordinate();
+  	// Checking the weather current time is in the valid time range
+  	if(
+  		(time<1&&currentSpeed<0)//||
+  		//(lastCoordinate && lastCoordinate.time>=time)||
+  		//!lastCoordinate
+  	){
+  		return ;
   	}
   	
   	const _timeout = window.setTimeout(()=>{
   		
-  		time+=(isBackward?-1:1)*5*speed/1000;
+  		time+= 5*currentSpeed/1000;
 
   		if(onChangeTime){
   			onChangeTime(time);
@@ -121,9 +123,29 @@ class PlayerComponent extends Component {
 
   handleSeek() {}
 
-  handleForward() {}
-
-  handleBackward() {}
+  handleForward() {
+ 	const {speeds,speed,onChangeSpeed} = this.props;
+ 	const {_speed} = this.state;
+  	console.log(_speed);
+ 	const currentSpeed=speed?speed:_speed;
+ 	
+ 	let index=0;
+ 	
+ 	const currentIndex = speeds.indexOf(currentSpeed);
+ 	if(currentIndex!=speeds.length-1){
+ 		index = currentIndex +1;
+ 	}
+ 	
+ 	if(onChangeSpeed){
+ 		onChangeSpeed(speeds[index]);
+ 	}
+ 	
+ 	if(!speed){
+ 		this.setState({
+ 			_speed:speeds[index]
+ 		});
+ 	}
+  }
   
   renderSatusIcon() {
   	const {
@@ -154,6 +176,12 @@ class PlayerComponent extends Component {
         {/*<Map google={google} zoom={zoom} />*/}
         <Toolbar variant="dense" className={classes.panel}>
         	{this.renderSatusIcon()}
+        	<IconButton onClick={this.handleForward} >
+        		<FastForwardIcon/>
+        	</IconButton>
+        	<IconButton >
+        		<StopIcon />
+        	</IconButton>
         	<div className={classes.seekBar}>
         		<div className={classes.seeked}/>
         		hjjhh
@@ -177,6 +205,7 @@ Player.propTypes = {
 					})).isRequired,
 	
 	onChangeTime:	PropTypes.func,
+	onChangeSpeed:	PropTypes.func,
 	onPlay:  		PropTypes.func,
 	onPause: 		PropTypes.func,
 	onStop:  		PropTypes.func,
@@ -193,10 +222,13 @@ Player.propTypes = {
 	
 	
 Player.defaultProps ={
-	speed:1000
+	speeds:[-1000,-750,-500,-100,100,500,750,1000],
+	coordinates:[]
 }
 
 export default Player;
+    
+    
     
     
     

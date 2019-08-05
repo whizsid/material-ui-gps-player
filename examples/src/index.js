@@ -10,7 +10,6 @@ class App extends Component {
           apiKey="AIzaSyDwcGALDxWC1T-5fnGvlzxvIJIoghO0ZUc"
           language="en"
           zoom={14}
-          speed={1}
         />
       </div>
     );
