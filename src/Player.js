@@ -64,6 +64,7 @@ class PlayerComponent extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+	// Updating start time when componemet changing
     if (
       this.state._currentTime == 0 &&
       prevState._currentTime == 0 &&
@@ -78,11 +79,15 @@ class PlayerComponent extends Component {
       }
     }
   }
-
+  /**
+  * Returning the currently passed coordinates
+  *
+  */
   _getCurrentCoordinates() {
     const { coordinates, currentTime } = this.props;
     const { _currentTime } = this.state;
-
+	// If current time passed by props time is taking fron it
+	// Otherwise time is keeping from our internal state
     const time = currentTime ? currentTime : _currentTime;
 
     return coordinates.filter(coordinate => {
@@ -99,7 +104,16 @@ class PlayerComponent extends Component {
 
     return coordinates[coordinates.length - 1];
   }
-
+  /**
+  * Calculating the bearing by two coordinates
+  *
+  * @param float startLat
+  * @param float startLng
+  * @param float destLat
+  * @param float destLng
+  *
+  * @return float
+  */
   _calculateBearing(startLat, startLng, destLat, destLng) {
     startLat = this._toRadians(startLat);
     startLng = this._toRadians(startLng);
@@ -116,8 +130,8 @@ class PlayerComponent extends Component {
   }
 
 
-    // Converts from degrees to radians.
-    _toRadians(degrees) {
+  // Converts from degrees to radians.
+  _toRadians(degrees) {
       return degrees * Math.PI / 180;
   };
 
@@ -129,6 +143,7 @@ class PlayerComponent extends Component {
   _continue() {
     const { speed, onChangeTime, currentTime, speeds } = this.props;
     const { _currentTime, _speed, playing } = this.state;
+    // Takingbspeed from props or state
     const currentSpeed = speed ? speed : _speed;
 
     if (!playing) {
@@ -148,6 +163,7 @@ class PlayerComponent extends Component {
       (lastCoordinate && lastCoordinate.time <= time) ||
       !lastCoordinate
     ) {
+ 	// Resetting playing status, currentTime, speed if playing time exceeded
       let newState = {
         playing: false
       };
@@ -162,31 +178,32 @@ class PlayerComponent extends Component {
     }
 
     const _timeout = window.setTimeout(() => {
+      // Changing the current time relative to speed
+      // speed is in seconds and setTimeou method
+      // looping over miliseconds, So I have devided
+      // the product by 1000
       time += (5 * currentSpeed) / 1000;
 
       if (onChangeTime) {
         onChangeTime(time);
+      }
 
-        if (!currentTime) {
-          this.setState(
-            {
-              _currentTime: time
-            },
-            () => this._continue()
-          );
-        } else {
-          this._continue();
-        }
-      } else {
+	// We dont want to change our internal state
+	// if they gave the current time via props
+ 	if (!currentTime) {
         this.setState(
           {
             _currentTime: time
           },
           () => this._continue()
         );
-      }
+     } else {
+        this._continue();
+     }
+      
     }, 5);
 
+	// Storing last timeout to destroy it
     this.setState({
       timeout: _timeout
     });
@@ -194,7 +211,10 @@ class PlayerComponent extends Component {
 
   handlePause() {
     const { onPause, currentTime } = this.props;
-    const { _currentTime } = this.state;
+    const { _currentTime, timeout } = this.state;
+
+	// Clearing previous timeout
+	window.clearTimeout(timeout);
 
     if (onPause) {
       onPause(currentTime ? currentTime : _currentTime);
@@ -213,6 +233,7 @@ class PlayerComponent extends Component {
       onPlay(currentTime ? currentTime : _currentTime);
     }
 
+	// Starting the recursive loop
     this.setState(
       {
         playing: true
@@ -228,7 +249,8 @@ class PlayerComponent extends Component {
     const { _currentTime, timeout } = this.state;
 
     window.clearTimeout(timeout);
-
+    
+	// Stopping playing status
     let newState = {
       playing: false
     };
@@ -236,15 +258,19 @@ class PlayerComponent extends Component {
     if (onStop) {
       onStop(currentTime ? currentTime : _currentTime);
     }
+    
+    const firstCoordinate = this._getFirstCoordinate();
 
+	const time = firstCoordinate ? firstCoordinate.time : 0;
+
+	// Changing the time to start time
     if (onChangeTime) {
-      onChangeTime(0);
+      onChangeTime(time);
     }
 
     if (!currentTime) {
-      const firstCoordinate = this._getFirstCoordinate();
 
-      newState._currentTime = firstCoordinate ? firstCoordinate.time : 0;
+      newState._currentTime =time;
     }
 
     this.setState(newState);
@@ -254,6 +280,7 @@ class PlayerComponent extends Component {
     const { onChangeTime, currentTime } = this.props;
     const { timeout, playing } = this.state;
 
+	// Calculating the percentage
     const rect = e.target.getBoundingClientRect(),
       x = e.clientX - rect.left, //x position within the element.
       width = e.currentTarget.offsetWidth;
@@ -262,15 +289,18 @@ class PlayerComponent extends Component {
       (x > width ? width : (x < 0 ? 0 : x) / width) * 100
     );
 
+	// Retrieving first and last coordinates to calculate selected time
     const firstCoordinate = this._getFirstCoordinate();
     const lastCoordinate = this._getLastCoordinate();
 
     const startTime = firstCoordinate ? firstCoordinate.time : 0;
     const lastTime = lastCoordinate ? lastCoordinate.time : 0;
 
-    const addingTime = ((lastTime - startTime) * percent) / 100;
+	// Time difference between clicked position time and first time
+    const timeDif = ((lastTime - startTime) * percent) / 100;
 
-    const selectedTime = startTime + addingTime;
+	// Adding the difference to start time
+    const selectedTime = startTime + timeDif;
     let newState = { playing: false };
 
     if (playing) {
@@ -295,6 +325,7 @@ class PlayerComponent extends Component {
 
     let index = 0;
 
+	// Getting the next speed
     const currentIndex = speeds.indexOf(currentSpeed);
     if (currentIndex != speeds.length - 1) {
       index = currentIndex + 1;
@@ -491,3 +522,4 @@ Player.defaultProps = {
 };
 
 export default Player;
+    
