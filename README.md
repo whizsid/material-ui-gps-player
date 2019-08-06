@@ -10,7 +10,7 @@
 
 This react component is fully developed using React Material UI framework to show GPS paths. You can play, pause and stop while playing GPS coordinates with this component.
 
-![material-ui-gps-player Preview](https://i.imgur.com/DaSrcMb.gif)
+![material-ui-gps-player Preview](https://i.imgur.com/yp5BOUf.png)
 
 ## Installation
 
