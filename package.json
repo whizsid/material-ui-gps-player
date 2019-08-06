@@ -1,6 +1,6 @@
 {
   "name": "material-ui-gps-player",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GPS coordinates player designed with material ui",
   "main": "index.js",
   "scripts": {
