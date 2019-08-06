@@ -1,4 +1,9 @@
 import React, { Component } from "react";
+import { Gmaps, Marker, Polyline } from "react-gmaps";
+import moment from "moment";
+import PropTypes from "prop-types";
+import classNames from "classnames";
+
 import Paper from "@material-ui/core/Paper";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -8,16 +13,17 @@ import PauseIcon from "@material-ui/icons/Pause";
 import FastForwardIcon from "@material-ui/icons/FastForward";
 import StopIcon from "@material-ui/icons/Stop";
 import blue from "@material-ui/core/colors/blue";
-import moment from "moment";
-import { Map, GoogleApiWrapper, Marker, Polyline } from "google-maps-react";
-import PropTypes from "prop-types";
-import { Typography } from "@material-ui/core";
-//import StopIcon from '@material-ui/icons/Stop';
-//import Typography from '@material-ui/core/Typography';
+import Typography from "@material-ui/core/Typography";
 
 const styles = theme => ({
   paper: {
-    background: "rgba(0,0,0,0.7)"
+    background: "rgba(0,0,0,0.7)",
+    position: "relative"
+  },
+  hideSmall: {
+    [theme.breakpoints.down("md")]: {
+      display: "none"
+    }
   },
   seekBar: {
     background: "#636466",
@@ -53,7 +59,7 @@ class PlayerComponent extends Component {
       playing: false,
       timeout: null,
       _currentTime: props.coordinates[0] ? props.coordinates[0].time : 0,
-      _speed: props.speeds[props.speeds.length - 1]
+      _speed: props.speeds[Math.ceil((props.speeds.length - 1) / 2)]
     };
 
     this.handlePause = this.handlePause.bind(this);
@@ -64,7 +70,7 @@ class PlayerComponent extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-	// Updating start time when componemet changing
+    // Updating start time when componemet changing
     if (
       this.state._currentTime == 0 &&
       prevState._currentTime == 0 &&
@@ -80,14 +86,14 @@ class PlayerComponent extends Component {
     }
   }
   /**
-  * Returning the currently passed coordinates
-  *
-  */
+   * Returning the currently passed coordinates
+   *
+   */
   _getCurrentCoordinates() {
     const { coordinates, currentTime } = this.props;
     const { _currentTime } = this.state;
-	// If current time passed by props time is taking fron it
-	// Otherwise time is keeping from our internal state
+    // If current time passed by props time is taking fron it
+    // Otherwise time is keeping from our internal state
     const time = currentTime ? currentTime : _currentTime;
 
     return coordinates.filter(coordinate => {
@@ -105,15 +111,15 @@ class PlayerComponent extends Component {
     return coordinates[coordinates.length - 1];
   }
   /**
-  * Calculating the bearing by two coordinates
-  *
-  * @param float startLat
-  * @param float startLng
-  * @param float destLat
-  * @param float destLng
-  *
-  * @return float
-  */
+   * Calculating the bearing by two coordinates
+   *
+   * @param float startLat
+   * @param float startLng
+   * @param float destLat
+   * @param float destLng
+   *
+   * @return float
+   */
   _calculateBearing(startLat, startLng, destLat, destLng) {
     startLat = this._toRadians(startLat);
     startLng = this._toRadians(startLng);
@@ -129,15 +135,14 @@ class PlayerComponent extends Component {
     return ((brng + 360) % 360) - 180;
   }
 
-
   // Converts from degrees to radians.
   _toRadians(degrees) {
-      return degrees * Math.PI / 180;
-  };
+    return (degrees * Math.PI) / 180;
+  }
 
   // Converts from radians to degrees.
   _toDegrees(radians) {
-      return radians * 180 / Math.PI;
+    return (radians * 180) / Math.PI;
   }
 
   _continue() {
@@ -163,13 +168,10 @@ class PlayerComponent extends Component {
       (lastCoordinate && lastCoordinate.time <= time) ||
       !lastCoordinate
     ) {
- 	// Resetting playing status, currentTime, speed if playing time exceeded
+      // Resetting playing status, currentTime, speed if playing time exceeded
       let newState = {
         playing: false
       };
-      if (!currentTime && firstCoordinate) {
-        newState._currentTime = firstCoordinate.time;
-      }
       if (!speed) {
         newState._speed = speeds[speeds.length - 1];
       }
@@ -188,22 +190,21 @@ class PlayerComponent extends Component {
         onChangeTime(time);
       }
 
-	// We dont want to change our internal state
-	// if they gave the current time via props
- 	if (!currentTime) {
+      // We dont want to change our internal state
+      // if they gave the current time via props
+      if (!currentTime) {
         this.setState(
           {
             _currentTime: time
           },
           () => this._continue()
         );
-     } else {
+      } else {
         this._continue();
-     }
-      
+      }
     }, 5);
 
-	// Storing last timeout to destroy it
+    // Storing last timeout to destroy it
     this.setState({
       timeout: _timeout
     });
@@ -213,8 +214,8 @@ class PlayerComponent extends Component {
     const { onPause, currentTime } = this.props;
     const { _currentTime, timeout } = this.state;
 
-	// Clearing previous timeout
-	window.clearTimeout(timeout);
+    // Clearing previous timeout
+    window.clearTimeout(timeout);
 
     if (onPause) {
       onPause(currentTime ? currentTime : _currentTime);
@@ -233,7 +234,7 @@ class PlayerComponent extends Component {
       onPlay(currentTime ? currentTime : _currentTime);
     }
 
-	// Starting the recursive loop
+    // Starting the recursive loop
     this.setState(
       {
         playing: true
@@ -249,8 +250,8 @@ class PlayerComponent extends Component {
     const { _currentTime, timeout } = this.state;
 
     window.clearTimeout(timeout);
-    
-	// Stopping playing status
+
+    // Stopping playing status
     let newState = {
       playing: false
     };
@@ -258,19 +259,18 @@ class PlayerComponent extends Component {
     if (onStop) {
       onStop(currentTime ? currentTime : _currentTime);
     }
-    
+
     const firstCoordinate = this._getFirstCoordinate();
 
-	const time = firstCoordinate ? firstCoordinate.time : 0;
+    const time = firstCoordinate ? firstCoordinate.time : 0;
 
-	// Changing the time to start time
+    // Changing the time to start time
     if (onChangeTime) {
       onChangeTime(time);
     }
 
     if (!currentTime) {
-
-      newState._currentTime =time;
+      newState._currentTime = time;
     }
 
     this.setState(newState);
@@ -280,7 +280,7 @@ class PlayerComponent extends Component {
     const { onChangeTime, currentTime } = this.props;
     const { timeout, playing } = this.state;
 
-	// Calculating the percentage
+    // Calculating the percentage
     const rect = e.target.getBoundingClientRect(),
       x = e.clientX - rect.left, //x position within the element.
       width = e.currentTarget.offsetWidth;
@@ -289,17 +289,17 @@ class PlayerComponent extends Component {
       (x > width ? width : (x < 0 ? 0 : x) / width) * 100
     );
 
-	// Retrieving first and last coordinates to calculate selected time
+    // Retrieving first and last coordinates to calculate selected time
     const firstCoordinate = this._getFirstCoordinate();
     const lastCoordinate = this._getLastCoordinate();
 
     const startTime = firstCoordinate ? firstCoordinate.time : 0;
     const lastTime = lastCoordinate ? lastCoordinate.time : 0;
 
-	// Time difference between clicked position time and first time
+    // Time difference between clicked position time and first time
     const timeDif = ((lastTime - startTime) * percent) / 100;
 
-	// Adding the difference to start time
+    // Adding the difference to start time
     const selectedTime = startTime + timeDif;
     let newState = { playing: false };
 
@@ -325,7 +325,7 @@ class PlayerComponent extends Component {
 
     let index = 0;
 
-	// Getting the next speed
+    // Getting the next speed
     const currentIndex = speeds.indexOf(currentSpeed);
     if (currentIndex != speeds.length - 1) {
       index = currentIndex + 1;
@@ -362,7 +362,7 @@ class PlayerComponent extends Component {
   }
 
   renderMarker(markers) {
-    const { iconMarker, google } = this.props;
+    const { iconMarker } = this.props;
 
     let currentPosition = markers.pop();
 
@@ -388,7 +388,9 @@ class PlayerComponent extends Component {
         lat={currentPosition.lat}
         lng={currentPosition.lng}
         icon={{
-          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          path: window.google
+            ? window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+            : undefined,
           ...iconMarker,
           rotation: angle
         }}
@@ -410,17 +412,26 @@ class PlayerComponent extends Component {
   }
 
   render() {
-    const { classes, google, zoom, currentTime, timeFormat } = this.props;
+    const {
+      classes,
+      apiKey,
+      zoom,
+      currentTime,
+      timeFormat,
+      width,
+      height,
+      center
+    } = this.props;
     const { _currentTime } = this.state;
 
     const lastCoordinate = this._getLastCoordinate();
     const firstCoordinate = this._getFirstCoordinate();
 
-    let width = 0;
+    let seekbarWidth = 0;
     const time = currentTime ? currentTime : _currentTime;
 
     if (lastCoordinate && firstCoordinate) {
-      width =
+      seekbarWidth =
         ((time - firstCoordinate.time) /
           (lastCoordinate.time - firstCoordinate.time)) *
         100;
@@ -429,40 +440,61 @@ class PlayerComponent extends Component {
     const coordinates = this._getCurrentCoordinates();
 
     return (
-      <Paper>
-        <Map
-          center={{
-            lat: coordinates.length
-              ? coordinates[coordinates.length - 1].lat
-              : 7.8731,
-            lng: coordinates.length
-              ? coordinates[coordinates.length - 1].lng
-              : 80.7718
-          }}
-          google={google}
-          zoom={zoom}
-        >
-          {this.renderMarker(coordinates)}
-          {this.renderPolyLine(coordinates)}
-        </Map>
+      <Paper style={{ width, height }} ref={this.setRef}>
+        <div>
+          <Gmaps
+            width={"100%"}
+            height={height}
+            lat={
+              coordinates.length
+                ? coordinates[coordinates.length - 1].lat
+                : center.lat
+            }
+            lng={
+              coordinates.length
+                ? coordinates[coordinates.length - 1].lng
+                : center.lng
+            }
+            zoom={zoom}
+            params={{
+              v: "3.exp",
+              key: apiKey
+            }}
+          >
+            {this.renderMarker(coordinates)}
+            {this.renderPolyLine(coordinates)}
+          </Gmaps>
+        </div>
         <Toolbar variant="dense" className={classes.paper}>
           {this.renderSatusIcon()}
           <IconButton onClick={this.handleForward}>
             <FastForwardIcon className={classes.buttonIcon} />
           </IconButton>
-          <IconButton onClick={this.handleStop}>
+          <IconButton className={classes.hideSmall} onClick={this.handleStop}>
             <StopIcon className={classes.buttonIcon} />
           </IconButton>
-          <Typography variant="caption" className={classes.timeTypography}>
+          <Typography
+            variant="caption"
+            className={classNames(classes.timeTypography, classes.hideSmall)}
+          >
             {moment
               .unix(firstCoordinate ? firstCoordinate.time : 0)
               .format(timeFormat)}
           </Typography>
           <div onClick={this.handleSeek} className={classes.seekBar}>
-            <div style={{ width: width + "%" }} className={classes.seeked} />
+            <div
+              style={{ width: seekbarWidth + "%" }}
+              className={classes.seeked}
+            />
           </div>
           <Typography variant="caption" className={classes.timeTypography}>
-            {moment.unix(time ? time : 0).format(timeFormat)} /{" "}
+            {moment.unix(time ? time : 0).format(timeFormat)}
+          </Typography>
+          <div className={classes.hideSmall}>/</div>
+          <Typography
+            variant="caption"
+            className={classNames(classes.timeTypography, classes.hideSmall)}
+          >
             {moment
               .unix(lastCoordinate ? lastCoordinate.time : 0)
               .format(timeFormat)}
@@ -473,10 +505,7 @@ class PlayerComponent extends Component {
   }
 }
 
-const Player = GoogleApiWrapper(props => ({
-  apiKey: props.apiKey,
-  language: props.language
-}))(withStyles(styles)(PlayerComponent));
+const Player = withStyles(styles)(PlayerComponent);
 
 Player.propTypes = {
   coordinates: PropTypes.arrayOf(
@@ -487,6 +516,10 @@ Player.propTypes = {
       bearing: PropTypes.number
     })
   ).isRequired,
+  center: PropTypes.shape({
+    lat: PropTypes.number,
+    lng: PropTypes.number
+  }),
 
   onChangeTime: PropTypes.func,
   onChangeSpeed: PropTypes.func,
@@ -505,12 +538,15 @@ Player.propTypes = {
     buttonIcon: PropTypes.string,
     timeTypography: PropTypes.string
   }),
+  apiKey: PropTypes.string.isRequired,
 
-  iconMarker: PropTypes.object
+  iconMarker: PropTypes.object,
+  width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 
 Player.defaultProps = {
-  speeds: [ -200, -100,50, 100,200, 500, 750, 1000],
+  speeds: [-200, -100, 50, 100, 200, 500, 750, 1000],
   coordinates: [],
   timeFormat: "HH:mm:ss",
   iconMarker: {
@@ -518,8 +554,12 @@ Player.defaultProps = {
     fillColor: blue[600],
     fillOpacity: 1,
     strokeWeight: 0
+  },
+  height: 500,
+  center: {
+    lat: 7.8731,
+    lng: 80.7718
   }
 };
 
 export default Player;
-    

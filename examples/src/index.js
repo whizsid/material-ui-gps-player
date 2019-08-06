@@ -4,6 +4,8 @@ import Player from "../../src/Player";
 import data from './data';
 
 class App extends Component {
+
+
   render() {
     return (
       <div>
