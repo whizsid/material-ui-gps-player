@@ -18,6 +18,31 @@ This react component is fully developed using React Material UI framework to sho
 npm install material-ui-gps-player --save
 ```
 
+## Usage 
+
+```
+import Player from 'material-ui-gps-player';
+
+
+class App extends Component {
+
+
+  render() {
+    return (
+      <div>
+        <Player
+          apiKey="Your Key"
+          language="en"
+          zoom={14}
+          coordinates={data}
+        />
+      </div>
+    );
+  }
+}
+
+```
+
 ## Props
 
 | Props (* required)         |  Defualt      |  Description              | Type          |
