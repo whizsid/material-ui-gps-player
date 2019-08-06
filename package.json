@@ -35,8 +35,7 @@
     "@material-ui/core": "^4.2.1",
     "@material-ui/icons": "^4.2.1",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "google-maps-react": "^2.0.2"
+    "react-dom": "^16.8.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
@@ -47,19 +46,16 @@
     "@types/googlemaps": "^3.37.1",
     "@types/moment": "^2.13.0",
     "babel-loader": "^8.0.6",
-    "classnames": "^2.2.6",
     "html-webpack-plugin": "^3.2.0",
-    "prop-types": "^15.6.2",
     "react-dom": "^16.8.6",
     "webpack": "^4.38.0",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
-    "@material-ui/core": "^4.3.0",
-    "@material-ui/icons": "^4.2.1",
     "moment": "^2.24.0",
-    "react": "^16.8.6",
-    "react-gmaps": "^1.9.0"
+    "react-gmaps": "^1.9.0",
+    "prop-types": "^15.6.2",
+    "classnames": "^2.2.6"
   }
 }
