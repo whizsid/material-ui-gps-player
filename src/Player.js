@@ -47,7 +47,7 @@ const styles = theme => ({
   },
   timeTypography: {
     color: "#fff",
-    margin: theme.spacing(2)
+    margin: typeof theme.spacing =='object'? theme.spacing.unit*2: theme.spacing(2)
   }
 });
 

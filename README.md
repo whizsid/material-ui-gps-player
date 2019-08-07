@@ -15,7 +15,7 @@ This react component is fully developed using React Material UI framework to sho
 ## Installation
 
 ```
-npm install material-ui-gps-player --save
+npm install @material-ui/core @material-ui/icons react react-dom material-ui-gps-player --save
 ```
 
 ## Usage 

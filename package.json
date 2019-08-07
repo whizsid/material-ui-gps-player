@@ -1,6 +1,6 @@
 {
   "name": "material-ui-gps-player",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "GPS coordinates player designed with material ui",
   "main": "index.js",
   "scripts": {
@@ -32,8 +32,8 @@
   },
   "homepage": "https://github.com/whizsid/material-ui-gps-player#readme",
   "peerDependencies": {
-    "@material-ui/core": "^4.2.1",
-    "@material-ui/icons": "^4.2.1",
+    "@material-ui/core": "^3.9.0",
+    "@material-ui/icons": "^3.0.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },
