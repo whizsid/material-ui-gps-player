@@ -10,7 +10,7 @@ class App extends Component {
     return (
       <div>
         <Player
-          apiKey="Your Key"
+          apiKey="AIzaSyDwcGALDxWC1T-5fnGvlzxvIJIoghO0ZUc"
           language="en"
           zoom={14}
           coordinates={data}

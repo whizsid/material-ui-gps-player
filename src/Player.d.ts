@@ -9,6 +9,8 @@ interface LatLng {
 interface Coordinate extends LatLng {
   time: number;
   bearing?: number;
+  marker?: boolean;
+  [x:string]: any;
 }
 
 export interface PlayerProps {

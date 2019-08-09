@@ -360,6 +360,21 @@ class PlayerComponent extends Component {
       </IconButton>
     );
   }
+  
+  renderOtherMarkers(coordinates){
+  	return coordinates.filter(
+  		coord=>coord.marker
+  	).map(coord=>(
+  		<Marker
+  			{...{ 
+  				...coord,
+  				marker:undefined,
+  				time:undefined,
+  				bearing:undefined
+  			}}
+  		/>
+  	))
+  }
 
   renderMarker(markers) {
     const { iconMarker } = this.props;
@@ -463,6 +478,7 @@ class PlayerComponent extends Component {
           >
             {this.renderMarker(coordinates)}
             {this.renderPolyLine(coordinates)}
+            {this.renderOtherMarkers(coordinates)}
           </Gmaps>
         </div>
         <Toolbar variant="dense" className={classes.paper}>

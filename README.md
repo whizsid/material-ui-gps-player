@@ -1,9 +1,11 @@
 <p align="center"><img src="https://i.imgur.com/GRK3UL8.png"></p>
+
 ---
 
 <p align="center">
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-brightgreen.svg" alt="License: MIT"></a>
 <a href="https://github.com/prettier/prettier"><img src="https://img.shields.io/badge/code_style-prettier-ff69b4.svg" alt="Code Style: prettier"></a>
+<a href="https://www.npmjs.com/package/material-ui-gps-player" ><img alt="npm" src="https://img.shields.io/npm/dw/material-ui-gps-player"></a>
 </p>
 
 ---
@@ -48,7 +50,7 @@ class App extends Component {
 | Props (* required)         |  Defualt      |  Description              | Type          |
 |---            |---            |---                        | ---           |
 |`apiKey` *      | `undefined` | API key for google maps | `string` |
-|`coordinates`*  |   `[]`          | GPS Coordinates that containing `lat:float`,`lng:float`,`time:int`,`bearing?:float` properties. `lat`,`lng`,`time` properties are required. `time` property is expecting a UNIX timestamp and all other properties (`lat`,`lng`,`bearing`) expecting floats. `bearing` is optional. We are calculating `bearing` using nearest coordinates if you didn't supply.| `array` |
+|`coordinates`*  |   `[]`          | GPS Coordinates that containing `lat:float`,`lng:float`,`time:int`,`bearing?:float` properties. `lat`,`lng`,`time` properties are required. `time` property is expecting a UNIX timestamp and all other properties (`lat`,`lng`,`bearing`) expecting floats. `bearing` is optional. We are calculating `bearing` using nearest coordinates if you didn't supply. Pass boolean value to `marker` if you want to display a marker. All other properties taking as marker's props if `marker` is `true`. | `array` |
 | | | `time:int` is passing to all below callbacks as the first parameter.||
 |`onChangeTime` | `undefined`   | When time has changed in the player. | `function` |
 |`onChangeSpeed`| `undefined`   | When player speed is changed. | `function` |
