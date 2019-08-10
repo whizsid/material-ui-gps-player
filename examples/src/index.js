@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
-import Player from "../../src/Player";
+import Player from "../../src";
 import data from './data';
 
 class App extends Component {
@@ -10,7 +10,7 @@ class App extends Component {
     return (
       <div>
         <Player
-          apiKey="AIzaSyDwcGALDxWC1T-5fnGvlzxvIJIoghO0ZUc"
+          apiKey="your_key"
           language="en"
           zoom={14}
           coordinates={data}
