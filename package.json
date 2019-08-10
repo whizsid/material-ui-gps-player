@@ -6,9 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --open --hot",
-    "build": "node ./node_modules/webpack/bin/webpack.js --mode production",
-    "transpile": "node ./node_modules/@babel/cli/bin/babel.js src -d dist --copy-files"
+    "prepublishOnly": "npm run transpile",
+    "transpile": "node ./node_modules/@babel/cli/bin/babel.js src -d dist --copy-files",
+    "build": "node ./node_modules/webpack/bin/webpack.js --mode production"
   },
+  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/whizsid/material-ui-gps-player.git"
