@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Gmaps, Marker, Polyline } from "react-gmaps";
+import { Gmaps, Marker, Polyline, InfoWindow } from "react-gmaps";
 import moment from "moment";
 import PropTypes from "prop-types";
 import classNames from "classnames";
@@ -47,7 +47,10 @@ const styles = theme => ({
   },
   timeTypography: {
     color: "#fff",
-    margin: typeof theme.spacing =='object'? theme.spacing.unit*2: theme.spacing(2)
+    margin:
+      typeof theme.spacing == "object"
+        ? theme.spacing.unit * 2
+        : theme.spacing(2)
   }
 });
 
@@ -360,20 +363,32 @@ class PlayerComponent extends Component {
       </IconButton>
     );
   }
-  
-  renderOtherMarkers(coordinates){
-  	return coordinates.filter(
-  		coord=>coord.marker
-  	).map(coord=>(
-  		<Marker
-  			{...{ 
-  				...coord,
-  				marker:undefined,
-  				time:undefined,
-  				bearing:undefined
-  			}}
-  		/>
-  	))
+
+  renderOtherMarkers(coordinates) {
+    return coordinates
+      .filter(coord => coord.marker)
+      .map((coord, key) => [
+          <Marker
+            {...{
+              ...coord,
+              infoWindow: undefined,
+              marker: undefined,
+              time: undefined,
+              bearing: undefined
+            }}
+          />,
+          coord.infoWindow ? (
+            <InfoWindow
+              content={coord.infoWindow.content}
+              disableAutoPan={coord.infoWindow.disableAutoPan}
+              maxWidth={coord.infoWindow.maxWidth}
+              pixelOffset={coord.infoWindow.pixelOffset}
+              zIndex={coord.infoWindow.zIndex}
+              lat={coord.lat}
+              lng={coord.lng}
+            />
+          ) : null
+        ]);
   }
 
   renderMarker(markers) {
@@ -559,7 +574,7 @@ Player.propTypes = {
   iconMarker: PropTypes.object,
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  zoom: PropTypes.number,
+  zoom: PropTypes.number
 };
 
 Player.defaultProps = {

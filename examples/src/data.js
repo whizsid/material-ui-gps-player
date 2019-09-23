@@ -18,7 +18,10 @@ export default  [
     lng: 79.8772532,
     lat: 6.8998056,
     time: 1564997831,
-//   marker:true
+    marker:true,
+    infoWindow:{
+      content:"Example Info Window"
+    }
   },
   {
     lng: 79.8772528,

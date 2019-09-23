@@ -1,5 +1,6 @@
 import * as React from "react";
 import { height } from "@material-ui/system";
+import {} from "googlemaps";
 
 interface LatLng {
     lat:number;
@@ -10,6 +11,7 @@ interface Coordinate extends LatLng {
   time: number;
   bearing?: number;
   marker?: boolean;
+  infoWindow?: google.maps.InfoWindowOptions;
   [x:string]: any;
 }
 
