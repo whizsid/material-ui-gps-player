@@ -1,14 +1,14 @@
 {
   "name": "material-ui-gps-player",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "GPS coordinates player designed with material ui",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --open --hot",
+    "start": "webpack-dev-server --mode development --open --hot",
     "prepublishOnly": "npm run transpile",
-    "transpile": "node ./node_modules/@babel/cli/bin/babel.js src -d dist --copy-files",
-    "build": "node ./node_modules/webpack/bin/webpack.js --mode production"
+    "transpile": "babel src -d dist --copy-files",
+    "build": "webpack --mode production"
   },
   "private": false,
   "repository": {
@@ -46,8 +46,8 @@
     "@types/moment": "^2.13.0",
     "babel-loader": "^8.0.6",
     "html-webpack-plugin": "^3.2.0",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
+    "react": "^16.8.5",
+    "react-dom": "^16.8.5",
     "webpack": "^4.38.0",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.7.2"
@@ -55,7 +55,7 @@
   "peerDependencies": {
     "@material-ui/core": "^4.3.1",
     "@material-ui/icons": "^4.2.1",
-    "react": "^16.9.0"
+    "react": "^16.8.5"
   },
   "dependencies": {
     "moment": "^2.24.0",
