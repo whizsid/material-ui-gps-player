@@ -37,6 +37,7 @@ export interface PlayerProps {
   };
   width?: number | string;
   height?: number | string;
+  zoom?: number;
 }
 
 declare class Player extends React.Component<PlayerProps> {

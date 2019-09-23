@@ -558,7 +558,8 @@ Player.propTypes = {
 
   iconMarker: PropTypes.object,
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  zoom: PropTypes.number,
 };
 
 Player.defaultProps = {
@@ -575,7 +576,8 @@ Player.defaultProps = {
   center: {
     lat: 7.8731,
     lng: 80.7718
-  }
+  },
+  zoom: 13
 };
 
 export default Player;
