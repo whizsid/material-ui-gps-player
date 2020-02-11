@@ -14,7 +14,9 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import StopIcon from "@material-ui/icons/Stop";
 import blue from "@material-ui/core/colors/blue";
 import Typography from "@material-ui/core/Typography";
-import { ClickAwayListener, Checkbox, Divider, Slider } from "@material-ui/core";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
+import Checkbox from "@material-ui/core/Checkbox";
+import Slider from "@material-ui/core/Slider";
 
 const styles = theme => ({
   paper: {
