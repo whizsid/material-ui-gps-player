@@ -264,7 +264,6 @@ class PlayerComponent extends Component {
         // the product by 1000
         let currentCoordTime = coordinates[_currentIndex].time;
         index += currentSpeed ;
-        console.log(index);
 
         if (onChangeTime&&coordinates[index]) {
             onChangeTime(coordinates[index].time);
