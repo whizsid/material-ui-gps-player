@@ -16,7 +16,7 @@ import blue from "@material-ui/core/colors/blue";
 import Typography from "@material-ui/core/Typography";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Checkbox from "@material-ui/core/Checkbox";
-import Slider from "@material-ui/core/Slider";
+import Slider from "@material-ui/lab/Slider";
 
 const styles = theme => ({
   paper: {
@@ -424,12 +424,12 @@ class PlayerComponent extends Component {
     const {waitingTime} = this.state;
 
     if(onChangeSpeed){
-      onChangeSpeed(speed*(waitingTime?speedMultiplier:1));
+      onChangeSpeed( Math.round(speed*(waitingTime?speedMultiplier:1)));
 
     }
 
     this.setState({
-      _speed: speed*(waitingTime?speedMultiplier:1)
+      _speed: Math.round(speed*(waitingTime?speedMultiplier:1))
     })
   }
 
@@ -594,11 +594,11 @@ class PlayerComponent extends Component {
           <Paper className={classes.settingsMenu}>
             <ClickAwayListener onClickAway={this.handleSettingsMenuClose}>
               <Toolbar variant="dense">
-                  <Slider className={classes.slider} onChange={this.handleChangeSpeed} value={(speed?speed:_speed)/(waitingTime?speedMultiplier:1)} />
+                  <Slider color="secondary" className={classes.slider} onChange={this.handleChangeSpeed} value={(speed?speed:_speed)/(waitingTime?speedMultiplier:1)} />
                   <Typography className={classes.speedLabel} >{(speed?speed:_speed)}X</Typography>
                   |
                  <Checkbox id="skipWait" onChange={this.handleChangeWaitingTime} checked={waitingTime} className={classes.buttonIcon} />
-                 <label for="skipWait">  <Typography className={classes.buttonIcon} >Waiting Time</Typography></label>
+                 <label htmlFor="skipWait">  <Typography className={classes.buttonIcon} >Waiting Time</Typography></label>
               </Toolbar>
             </ClickAwayListener>
           </Paper>
