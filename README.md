@@ -65,6 +65,8 @@ class App extends Component {
 | `width`       | `undefined`   | Width for the player wrapper. | `number` |
 | `height`      | `500`           | Height of the player wrapper. |  `number` |
 | `center`      | `{lat: 7.8731,lng: 80.7718}` | This is the center of map when initializing. center parameter required a object that contains `lat`, `lng` properties. | `object` |
+| `polyLine` | `undefined` | Poly Line properties. Ex:- `{strokeWidth:4, strokeColor: '#fff'}` | `object` |
+| `speedMultiplier` | `25` | Speed multiplier when switching between waiting time enabled and disabled. | `number` |
 
 ## Testing
 

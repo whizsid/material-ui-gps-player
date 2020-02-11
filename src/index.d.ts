@@ -40,6 +40,9 @@ export interface PlayerProps {
   width?: number | string;
   height?: number | string;
   zoom?: number;
+  polyLine?:{
+    [x:string]: any;
+  }
 }
 
 declare class Player extends React.Component<PlayerProps> {

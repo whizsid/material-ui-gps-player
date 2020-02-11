@@ -10,10 +10,11 @@ import IconButton from "@material-ui/core/IconButton";
 import withStyles from "@material-ui/core/styles/withStyles";
 import PlayIcon from "@material-ui/icons/PlayArrow";
 import PauseIcon from "@material-ui/icons/Pause";
-import FastForwardIcon from "@material-ui/icons/FastForward";
+import SettingsIcon from "@material-ui/icons/Settings";
 import StopIcon from "@material-ui/icons/Stop";
 import blue from "@material-ui/core/colors/blue";
 import Typography from "@material-ui/core/Typography";
+import { ClickAwayListener, Checkbox, Divider, Slider } from "@material-ui/core";
 
 const styles = theme => ({
   paper: {
@@ -51,6 +52,22 @@ const styles = theme => ({
       typeof theme.spacing == "object"
         ? theme.spacing.unit * 2
         : theme.spacing(2)
+  },
+  settingsMenu:{
+    position:"absolute",
+    background: "rgba(0,0,0,0.7)",
+    bottom:"100%",
+    left:0,
+    zIndex: 1000,
+    marginBottom: 4
+  },
+  slider:{
+    color: "#fff",
+    width: 240
+  },
+  speedLabel:{
+    margin: theme.spacing.unit,
+    color: "#fff"
   }
 });
 
@@ -62,14 +79,21 @@ class PlayerComponent extends Component {
       playing: false,
       timeout: null,
       _currentTime: props.coordinates[0] ? props.coordinates[0].time : 0,
-      _speed: props.speeds[Math.ceil((props.speeds.length - 1) / 2)]
+      // If skipping waiting time
+      _currentIndex: 0,
+      _speed: 1,
+      settingsMenuOpen: false,
+      waitingTime: false
     };
 
     this.handlePause = this.handlePause.bind(this);
     this.handlePlay = this.handlePlay.bind(this);
     this.handleStop = this.handleStop.bind(this);
     this.handleSeek = this.handleSeek.bind(this);
-    this.handleForward = this.handleForward.bind(this);
+    this.handleSettingsMenuOpen = this.handleSettingsMenuOpen.bind(this);
+    this.handleSettingsMenuClose = this.handleSettingsMenuClose.bind(this);
+    this.handleChangeWaitingTime = this.handleChangeWaitingTime.bind(this);
+    this.handleChangeSpeed = this.handleChangeSpeed.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -94,13 +118,13 @@ class PlayerComponent extends Component {
    */
   _getCurrentCoordinates() {
     const { coordinates, currentTime } = this.props;
-    const { _currentTime } = this.state;
+    const { _currentTime , waitingTime , _currentIndex } = this.state;
     // If current time passed by props time is taking fron it
     // Otherwise time is keeping from our internal state
     const time = currentTime ? currentTime : _currentTime;
 
-    return coordinates.filter(coordinate => {
-      return coordinate.time < time;
+    return coordinates.filter((coordinate,key) => {
+      return waitingTime? coordinate.time <= time : key<= _currentIndex;
     });
   }
 
@@ -149,8 +173,8 @@ class PlayerComponent extends Component {
   }
 
   _continue() {
-    const { speed, onChangeTime, currentTime, speeds } = this.props;
-    const { _currentTime, _speed, playing } = this.state;
+    const { speed, onChangeTime, currentTime ,coordinates} = this.props;
+    const { _currentTime, _speed, playing , waitingTime , _currentIndex } = this.state;
     // Takingbspeed from props or state
     const currentSpeed = speed ? speed : _speed;
 
@@ -159,58 +183,109 @@ class PlayerComponent extends Component {
       return;
     }
 
-    // If passed current time via props
-    let time = currentTime ? currentTime : _currentTime;
-    const lastCoordinate = this._getLastCoordinate();
-    const firstCoordinate = this._getFirstCoordinate();
-    // Checking the weather current time is in the valid time range
-    if (
-      (firstCoordinate &&
-        time < firstCoordinate.time + (5 * currentSpeed) / 1000 &&
-        currentSpeed < 0) ||
-      (lastCoordinate && lastCoordinate.time <= time) ||
-      !lastCoordinate
-    ) {
-      // Resetting playing status, currentTime, speed if playing time exceeded
-      let newState = {
-        playing: false
-      };
-      if (!speed) {
-        newState._speed = speeds[speeds.length - 1];
-      }
-      this.setState(newState);
-      return;
-    }
+    if(waitingTime){
+      // If passed current time via props
+      let time = currentTime ? currentTime : _currentTime;
+      const lastCoordinate = this._getLastCoordinate();
+      const firstCoordinate = this._getFirstCoordinate();
+      // Checking the weather current time is in the valid time range
+      if (
+        (firstCoordinate &&
+          time < firstCoordinate.time + (5 * currentSpeed) / 1000 &&
+          currentSpeed < 0) ||
+        (lastCoordinate && lastCoordinate.time <= time) ||
+        !lastCoordinate
+      ) {
+        // Resetting playing status, currentTime, speed if playing time exceeded
+        let newState = {
+          playing: false
+        };
 
-    const _timeout = window.setTimeout(() => {
-      // Changing the current time relative to speed
-      // speed is in seconds and setTimeou method
-      // looping over miliseconds, So I have devided
-      // the product by 1000
-      time += (5 * currentSpeed) / 1000;
-
-      if (onChangeTime) {
-        onChangeTime(time);
+        this.setState(newState);
+        return;
       }
 
-      // We dont want to change our internal state
-      // if they gave the current time via props
-      if (!currentTime) {
+      const _timeout = window.setTimeout(() => {
+        // Changing the current time relative to speed
+        // speed is in seconds and setTimeou method
+        // looping over miliseconds, So I have devided
+        // the product by 1000
+        time += (5 * currentSpeed) / 1000;
+
+        if (onChangeTime) {
+          onChangeTime(time);
+        }
+
+        let index = 0;
+
+        coordinates.forEach((coordinate,key)=>{
+          if(coordinate.time <= time){
+            index = key;
+          }
+        })
+
+        // We dont want to change our internal state
+        // if they gave the current time via props
+        if (!currentTime) {
+          this.setState(
+            {
+              _currentTime: time,
+              _currentIndex: index
+            },
+            () => this._continue()
+          );
+        } else {
+          this._continue();
+        }
+      }, 5);
+
+      // Storing last timeout to destroy it
+      this.setState({
+        timeout: _timeout
+      });
+
+    } else {
+      let index = _currentIndex;
+
+      if(index>=coordinates.length-1){
+        let newState = {
+          playing: false
+        };
+
+        this.setState(newState);
+
+        return;
+      }
+
+      const _timeout = window.setTimeout(() => {
+        // Changing the current time relative to speed
+        // speed is in seconds and setTimeou method
+        // looping over miliseconds, So I have devided
+        // the product by 1000
+        let currentCoordTime = coordinates[_currentIndex].time;
+        index += currentSpeed ;
+        console.log(index);
+
+        if (onChangeTime&&coordinates[index]) {
+            onChangeTime(coordinates[index].time);
+        }
+
+        // We dont want to change our internal state
+        // if they gave the current time via props
         this.setState(
           {
-            _currentTime: time
+            _currentIndex: index,
+            _currentTime: coordinates[index]?coordinates[index].time: currentCoordTime
           },
           () => this._continue()
         );
-      } else {
-        this._continue();
-      }
-    }, 5);
+      }, 5);
 
-    // Storing last timeout to destroy it
-    this.setState({
-      timeout: _timeout
-    });
+      // Storing last timeout to destroy it
+      this.setState({
+        timeout: _timeout
+      });
+    }
   }
 
   handlePause() {
@@ -274,14 +349,15 @@ class PlayerComponent extends Component {
 
     if (!currentTime) {
       newState._currentTime = time;
+      newState._currentIndex = 0;
     }
 
     this.setState(newState);
   }
 
   handleSeek(e) {
-    const { onChangeTime, currentTime } = this.props;
-    const { timeout, playing } = this.state;
+    const { onChangeTime, currentTime , coordinates } = this.props;
+    const { timeout, playing , waitingTime } = this.state;
 
     // Calculating the percentage
     const rect = e.target.getBoundingClientRect(),
@@ -312,6 +388,13 @@ class PlayerComponent extends Component {
 
     if (!currentTime) {
       newState._currentTime = selectedTime;
+      
+      if(!waitingTime){
+        coordinates.forEach((coordinate,key)=>{
+          if(coordinate.time <= selectedTime)
+            newState._currentIndex = key;
+        })
+      }
     }
 
     if (onChangeTime) {
@@ -321,28 +404,32 @@ class PlayerComponent extends Component {
     this.setState(newState);
   }
 
-  handleForward() {
-    const { speeds, speed, onChangeSpeed } = this.props;
-    const { _speed } = this.state;
-    const currentSpeed = speed ? speed : _speed;
+  handleSettingsMenuOpen(){
+    this.setState({settingsMenuOpen:true});
+  }
 
-    let index = 0;
+  handleSettingsMenuClose(){
+    this.setState({settingsMenuOpen:false});
+  }
 
-    // Getting the next speed
-    const currentIndex = speeds.indexOf(currentSpeed);
-    if (currentIndex != speeds.length - 1) {
-      index = currentIndex + 1;
+  handleChangeWaitingTime(e,checked){
+    const {_speed} = this.state;
+
+    this.setState({waitingTime:checked,_speed:  Math.round(checked? _speed*100: _speed/100)});
+  }
+
+  handleChangeSpeed(e,speed){
+    const {onChangeSpeed,speedMultiplier} = this.props;
+    const {waitingTime} = this.state;
+
+    if(onChangeSpeed){
+      onChangeSpeed(speed*(waitingTime?speedMultiplier:1));
+
     }
 
-    if (onChangeSpeed) {
-      onChangeSpeed(speeds[index]);
-    }
-
-    if (!speed) {
-      this.setState({
-        _speed: speeds[index]
-      });
-    }
+    this.setState({
+      _speed: speed*(waitingTime?speedMultiplier:1)
+    })
   }
 
   renderSatusIcon() {
@@ -429,6 +516,7 @@ class PlayerComponent extends Component {
   }
 
   renderPolyLine(markers) {
+    const {polyLine} = this.props;
     if (!markers.length) {
       return null;
     }
@@ -437,6 +525,7 @@ class PlayerComponent extends Component {
       <Polyline
         geodesic={true}
         path={markers.map(({ lat, lng }) => ({ lat, lng }))}
+        {...polyLine}
       />
     );
   }
@@ -450,9 +539,11 @@ class PlayerComponent extends Component {
       timeFormat,
       width,
       height,
-      center
+      center,
+      speed,
+      speedMultiplier
     } = this.props;
-    const { _currentTime } = this.state;
+    const { _currentTime, settingsMenuOpen, waitingTime,_speed } = this.state;
 
     const lastCoordinate = this._getLastCoordinate();
     const firstCoordinate = this._getFirstCoordinate();
@@ -488,7 +579,8 @@ class PlayerComponent extends Component {
             zoom={zoom}
             params={{
               v: "3.exp",
-              key: apiKey
+              key: apiKey,
+              mapTypeId:  window.google?window.google.maps.MapTypeId.ROADMAP:undefined
             }}
           >
             {this.renderMarker(coordinates)}
@@ -497,12 +589,25 @@ class PlayerComponent extends Component {
           </Gmaps>
         </div>
         <Toolbar variant="dense" className={classes.paper}>
+          {settingsMenuOpen?
+          <Paper className={classes.settingsMenu}>
+            <ClickAwayListener onClickAway={this.handleSettingsMenuClose}>
+              <Toolbar variant="dense">
+                  <Slider className={classes.slider} onChange={this.handleChangeSpeed} value={(speed?speed:_speed)/(waitingTime?speedMultiplier:1)} />
+                  <Typography className={classes.speedLabel} >{(speed?speed:_speed)}X</Typography>
+                  |
+                 <Checkbox id="skipWait" onChange={this.handleChangeWaitingTime} checked={waitingTime} className={classes.buttonIcon} />
+                 <label for="skipWait">  <Typography className={classes.buttonIcon} >Waiting Time</Typography></label>
+              </Toolbar>
+            </ClickAwayListener>
+          </Paper>
+          :null}
           {this.renderSatusIcon()}
-          <IconButton onClick={this.handleForward}>
-            <FastForwardIcon className={classes.buttonIcon} />
-          </IconButton>
           <IconButton className={classes.hideSmall} onClick={this.handleStop}>
             <StopIcon className={classes.buttonIcon} />
+          </IconButton>
+          <IconButton onClick={this.handleSettingsMenuOpen}>
+            <SettingsIcon className={classes.buttonIcon} />
           </IconButton>
           <Typography
             variant="caption"
@@ -572,13 +677,15 @@ Player.propTypes = {
   apiKey: PropTypes.string.isRequired,
 
   iconMarker: PropTypes.object,
+  polyLine: PropTypes.object,
   width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  zoom: PropTypes.number
+  zoom: PropTypes.number,
+
+  speedMultiplier: PropTypes.number
 };
 
 Player.defaultProps = {
-  speeds: [-200, -100, 50, 100, 200, 500, 750, 1000],
   coordinates: [],
   timeFormat: "HH:mm:ss",
   iconMarker: {
@@ -592,7 +699,8 @@ Player.defaultProps = {
     lat: 7.8731,
     lng: 80.7718
   },
-  zoom: 13
+  zoom: 13,
+  speedMultiplier: 25
 };
 
 export default Player;
