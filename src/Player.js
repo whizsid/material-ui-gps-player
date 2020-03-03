@@ -85,7 +85,13 @@ class PlayerComponent extends Component {
       _currentIndex: 0,
       _speed: 1,
       settingsMenuOpen: false,
-      waitingTime: false
+      waitingTime: false,
+      infoWindowToShow: [],
+      params:{
+        v: "3.exp",
+        key: props.apiKey,
+        mapTypeId:  window.google?window.google.maps.MapTypeId.ROADMAP:undefined        
+      }
     };
 
     this.handlePause = this.handlePause.bind(this);
@@ -452,7 +458,28 @@ class PlayerComponent extends Component {
     );
   }
 
+  handleMouseOverMarker(key){
+    return e =>{
+      const {infoWindowToShow} = this.state;
+
+      this.setState({
+        infoWindowToShow:[...infoWindowToShow,key]
+      })
+    }
+  }
+
+  handleCloseClick(key){
+    return e=>{
+      const {infoWindowToShow} = this.state;
+
+      this.setState({
+        infoWindowToShow: infoWindowToShow.filter(id=>id!=key)
+      });
+    }
+  }
+
   renderOtherMarkers(coordinates) {
+    const {infoWindowToShow} = this.state;
     return coordinates
       .filter(coord => coord.marker)
       .map((coord, key) => [
@@ -464,8 +491,9 @@ class PlayerComponent extends Component {
               time: undefined,
               bearing: undefined
             }}
+            onMouseOver={this.handleMouseOverMarker(key)}
           />,
-          coord.infoWindow ? (
+          coord.infoWindow && infoWindowToShow.includes(key) ? (
             <InfoWindow
               content={coord.infoWindow.content}
               disableAutoPan={coord.infoWindow.disableAutoPan}
@@ -474,6 +502,7 @@ class PlayerComponent extends Component {
               zIndex={coord.infoWindow.zIndex}
               lat={coord.lat}
               lng={coord.lng}
+              onCloseClick={this.handleCloseClick(key)}
             />
           ) : null
         ]);
@@ -534,7 +563,6 @@ class PlayerComponent extends Component {
   render() {
     const {
       classes,
-      apiKey,
       zoom,
       currentTime,
       timeFormat,
@@ -544,7 +572,7 @@ class PlayerComponent extends Component {
       speed,
       speedMultiplier
     } = this.props;
-    const { _currentTime, settingsMenuOpen, waitingTime,_speed } = this.state;
+    const { _currentTime, settingsMenuOpen, waitingTime,_speed ,params} = this.state;
 
     const lastCoordinate = this._getLastCoordinate();
     const firstCoordinate = this._getFirstCoordinate();
@@ -578,11 +606,7 @@ class PlayerComponent extends Component {
                 : center.lng
             }
             zoom={zoom}
-            params={{
-              v: "3.exp",
-              key: apiKey,
-              mapTypeId:  window.google?window.google.maps.MapTypeId.ROADMAP:undefined
-            }}
+            params={params}
           >
             {this.renderMarker(coordinates)}
             {this.renderPolyLine(coordinates)}
